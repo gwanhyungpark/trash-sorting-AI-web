@@ -5,10 +5,6 @@ from typing import Dict, List, Tuple
 import gradio as gr
 
 
-# 분리배출 기준은 지역마다 조금 다를 수 있다.
-# 이 프로그램은 사용자가 입력한 설명과 선택한 상태를 바탕으로
-# 가장 가능성이 높은 배출 방법을 안내하는 간단한 AI 도우미이다.
-
 CATEGORY_INFO: Dict[str, Dict[str, str]] = {
     "paper": {
         "name": "종이류",
@@ -137,7 +133,6 @@ def score_categories(text: str, materials: List[str]) -> Tuple[Dict[str, int], L
             scores[category] += 5
             reasons.append(f"선택한 재질 '{material}' 반영")
 
-    # 위험성이 큰 항목은 일반 재활용보다 우선한다.
     if any(word in text for word in ["배터리", "건전지", "보조배터리", "리튬"]):
         scores["battery"] += 8
     if any(word in text for word in ["약", "알약", "물약", "연고", "의약품"]):
@@ -169,7 +164,6 @@ def classify_trash(item_text: str, materials: List[str], contamination: int, is_
     best_category, best_score = sorted_scores[0]
     second_score = sorted_scores[1][1]
 
-    # 재활용품인데 오염이 심하거나 내용물이 남아 있으면 일반쓰레기를 권장한다.
     recyclable = {"paper", "plastic", "vinyl", "glass", "metal", "clothing"}
     changed_by_condition = False
     if best_category in recyclable:
@@ -178,7 +172,6 @@ def classify_trash(item_text: str, materials: List[str], contamination: int, is_
                 best_category = "general"
                 changed_by_condition = True
 
-    # 위험물은 상태와 상관없이 전용 배출을 우선한다.
     if any(word in text for word in DANGER_WORDS):
         for special in ["battery", "medicine", "hazardous", "metal", "glass"]:
             if scores.get(special, 0) == max(scores.values()) or scores.get(special, 0) >= 6:
@@ -221,7 +214,7 @@ def classify_trash(item_text: str, materials: List[str], contamination: int, is_
 ### 참고
 {info['tip']}
 
-> 지역별 분리배출 기준은 조금씩 다를 수 있으므로, 실제 제출물에는 "지역별 기준 확인 필요"라고 적어두면 더 안전합니다.
+> 지역별 분리배출 기준은 조금씩 다를 수 있으므로, 실제 제출물에는 '지역별 기준 확인 필요'라고 적어두면 더 안전합니다.
 """
 
 
@@ -230,9 +223,9 @@ def build_app() -> gr.Blocks:
         gr.Markdown(
             """
 # AI 분리배출 도우미
-버릴 물건의 이름과 상태를 입력하면, 어떤 방식으로 배출하면 좋을지 추천해 주는 웹 프로그램입니다.
+버릴 물건의 이름과 상태를 입력하면, 어떤 방식으로 배출하면 좋을지 추천해 주는 웹 프로그램이다.
 
-이 프로그램은 입력 문장과 선택한 재질을 분석해서 가장 알맞은 분리배출 항목을 추정합니다.
+이 프로그램은 입력 문장과 선택한 재질을 분석해서 가장 알맞은 분리배출 항목을 추정한다.
 """
         )
 
@@ -276,9 +269,9 @@ def build_app() -> gr.Blocks:
             """
 ---
 ### 프로그램 설명
-- 입력한 물건 이름에서 핵심 단어를 찾고, 선택한 재질과 오염 상태를 함께 반영합니다.
-- 재활용 가능성이 있어도 오염이 심하면 일반쓰레기로 안내합니다.
-- 배터리, 약, 깨진 유리처럼 안전 문제가 있는 항목은 전용 배출을 우선합니다.
+- 입력한 물건 이름에서 핵심 단어를 찾고, 선택한 재질과 오염 상태를 함께 반영한다.
+- 재활용 가능성이 있어도 오염이 심하면 일반쓰레기로 안내한다.
+- 배터리, 약, 깨진 유리처럼 안전 문제가 있는 항목은 전용 배출을 우선한다.
 """
         )
 
